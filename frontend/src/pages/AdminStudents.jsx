@@ -36,8 +36,22 @@ export default function AdminStudents() {
     }
   }
 
-  const handleExportCSV = () => {
-    window.open('/api/export/csv', '_blank')
+  const handleExportCSV = async () => {
+    try {
+      const res = await fetch('/api/export/students', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (!res.ok) throw new Error('Export failed')
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'students.csv'
+      a.click()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      setError('匯出失敗: ' + err.message)
+    }
   }
 
   return (
